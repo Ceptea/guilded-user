@@ -147,6 +147,3 @@ class Client:
         response = self._post(f"channels/{channel}/messages", json)
         return response
 
-
-# Reference
-# https://www.guilded.gg/api/channels/befa7b66-43ef-4345-ae6a-3c2444a768d2/messages
