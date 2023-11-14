@@ -33,7 +33,7 @@ class Client:
 
     def _post(self, endpoint, json):
         """
-        Post's to a endpoint wih the specified json
+        Posts to a endpoint wih the specified json
         """
         response = self.session.post(f"{API}{endpoint}", json=json)
 
@@ -113,9 +113,9 @@ class Client:
         return response
 
     def get_messages(self, channel, limit):
-        '''
+        """
         Gets messages
-        '''
+        """
         self._get(f"/channels/{channel}/messages?limit={limit}&maxReactionUsers=8")
 
     def send_message(
