@@ -116,8 +116,10 @@ class Client:
         """
         Gets messages
         """
-        self._get(f"/channels/{channel}/messages?limit={limit}&maxReactionUsers=8")
-
+        response = self._get(f"/channels/{channel}/messages?limit={limit}&maxReactionUsers=8")
+        return response.json()
+    def edit_message(self, channel, text):
+        test="https://www.guilded.gg/api/channels/b8d1a67c-328e-4c00-9281-ab388dc18e1f/messages/1f1dcfef-190b-4502-8340-63a86f514bf5"
     def send_message(
         self,
         channel,
@@ -132,8 +134,9 @@ class Client:
         """
         if not replies:
             replies = []
+        uuid = str(uuid4())
         json = {
-            "messageId": str(uuid4()),
+            "messageId": uuid,
             "content": {
                 "object": "value",
                 "document": {
@@ -166,4 +169,6 @@ class Client:
             "isPrivate": is_private,
         }
         response = self._post(f"channels/{channel}/messages", json)
-        return response
+        if response.status_code != 200:
+            raise ApiError("Failed to send message")
+        return uuid
