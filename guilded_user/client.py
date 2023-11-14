@@ -64,6 +64,9 @@ class Client:
             raise ApiError("Invaild Login.")
         return response.json()
 
+    def set_presence(self,status=1):
+        json = {"status": status}
+        self._post("users/me/presence",json)
     def set_status(self, text, reactionid=90002547):
         """
         Set's your status
