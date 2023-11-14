@@ -2,9 +2,9 @@
 All the client stuff.
 """
 
-
-import requests as req
 from uuid import uuid4
+import requests as req
+
 
 API = "https://www.guilded.gg/api/"
 
@@ -38,6 +38,17 @@ class Client:
         response = self.session.put(f"{API}{endpoint}", json=json)
         return response
 
+    def _ping(self):
+        """
+        Not sure what this does.
+        Just added it cause I saw guilded doing it alot.
+        will probably be removed
+        """
+        response = self._put("users/me/ping", {})
+        if response.status_code != 200:
+            raise ApiError(f"Tried to ping but got {response.status_code}")
+        return response
+
     def login(self, email, password, get_me=True):
         """
         Logins to a guilded account with the specified creds
@@ -52,17 +63,6 @@ class Client:
         if response.status_code != 200:
             raise ApiError("Invaild Login.")
         return response.json()
-
-    def _ping(self):
-        """
-        Not sure what this does.
-        Just added it cause I saw guilded doing it alot.
-        will probably be removed
-        """
-        response = self._put("users/me/ping", {})
-        if response.status_code != 200:
-            raise ApiError(f"Tried to ping but got {response.status_code}")
-        return response
 
     def set_status(self, text, reactionid=90002547):
         """
@@ -103,8 +103,8 @@ class Client:
         message,
         replies=None,
         confirmed=False,
-        is_Silent=False,
-        is_Private=False,
+        is_silent=False,
+        is_private=False,
     ):
         """
         Sends a message to the specified channel
@@ -141,8 +141,8 @@ class Client:
             },
             "repliesToIds": replies,
             "confirmed": confirmed,
-            "isSilent": is_Silent,
-            "isPrivate": is_Private,
+            "isSilent": is_silent,
+            "isPrivate": is_private,
         }
         response = self._post(f"channels/{channel}/messages", json)
         return response
