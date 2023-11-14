@@ -23,6 +23,14 @@ class Client:
     def __init__(self) -> None:
         self.session = req.Session()
 
+    def _get(self, endpoint):
+        """
+        Gets the endpoint (???)
+        """
+        response = self.session.get(f"{API}{endpoint}")
+
+        return response
+
     def _post(self, endpoint, json):
         """
         Post's to a endpoint wih the specified json
@@ -33,7 +41,7 @@ class Client:
 
     def _put(self, endpoint, json):
         """
-        Put's to a endpoint wih the specified json
+        Puts to a endpoint wih the specified json
         """
         response = self.session.put(f"{API}{endpoint}", json=json)
         return response
@@ -64,12 +72,16 @@ class Client:
             raise ApiError("Invaild Login.")
         return response.json()
 
-    def set_presence(self,status=1):
+    def set_presence(self, status=1):
+        """
+        Set's the user's presence
+        """
         json = {"status": status}
-        self._post("users/me/presence",json)
+        self._post("users/me/presence", json)
+
     def set_status(self, text, reactionid=90002547):
         """
-        Set's your status
+        Set's the user's status
         """
         json = {
             "content": {
@@ -99,6 +111,12 @@ class Client:
         }
         response = self._post("users/me/status", json)
         return response
+
+    def get_messages(self, channel, limit):
+        '''
+        Gets messages
+        '''
+        self._get(f"/channels/{channel}/messages?limit={limit}&maxReactionUsers=8")
 
     def send_message(
         self,
