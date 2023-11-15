@@ -15,6 +15,9 @@ class ApiError(Exception):
     """
 
 
+#
+
+
 class Client:
     """
     Guilded Client
@@ -22,6 +25,9 @@ class Client:
 
     def __init__(self) -> None:
         self.session = req.Session()
+        self.id = None
+        self.name = None
+        self.info = None
 
     def _get(self, endpoint):
         """
@@ -46,6 +52,10 @@ class Client:
         response = self.session.put(f"{API}{endpoint}", json=json)
         return response
 
+    def _delete(self, endpoint):
+        response = self.session.delete(f"{API}{endpoint}")
+        return response
+
     def _ping(self):
         """
         Not sure what this does.
@@ -54,6 +64,7 @@ class Client:
         """
         response = self._put("users/me/ping", {})
         if response.status_code != 200:
+            print(response.text)
             raise ApiError(f"Tried to ping but got {response.status_code}")
         return response
 
@@ -70,7 +81,11 @@ class Client:
         response = self._post("login", json)
         if response.status_code != 200:
             raise ApiError("Invaild Login.")
-        return response.json()
+        json = response.json()
+        self.id = json["user"]["id"]
+        self.name = json["user"]["name"]
+        self.info = json
+        return json
 
     def set_presence(self, status=1):
         """
@@ -116,10 +131,54 @@ class Client:
         """
         Gets messages
         """
-        response = self._get(f"/channels/{channel}/messages?limit={limit}&maxReactionUsers=8")
+        response = self._get(
+            f"/channels/{channel}/messages?limit={limit}&maxReactionUsers=8"
+        )
         return response.json()
-    def edit_message(self, channel, text):
-        test="https://www.guilded.gg/api/channels/b8d1a67c-328e-4c00-9281-ab388dc18e1f/messages/1f1dcfef-190b-4502-8340-63a86f514bf5"
+
+    def get_channels(self):
+        response = self._get(f"users/{self.id}/channels")
+        if response.status_code != 200:
+            raise ApiError("Failed to get channels.")
+        return response.json()
+
+    def delete_message(self, channel, message):
+        response = self._delete(f"channels/{channel}/messages/{message}")
+        if response.status_code != 200:
+            raise ApiError("Failed to delete message. (Does it exist?)")
+
+    def edit_message(self, channel, message, text):
+        json = {
+            "content": {
+                "object": "value",
+                "document": {
+                    "object": "document",
+                    "data": {},
+                    "nodes": [
+                        {
+                            "object": "block",
+                            "type": "paragraph",
+                            "data": {},
+                            "nodes": [
+                                {
+                                    "object": "text",
+                                    "leaves": [
+                                        {"object": "leaf", "text": text, "marks": []}
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                },
+            }
+        }
+        response = self._put(f"channels/{channel}/messages/{message}", json)
+        if response.status_code != 200:
+            print(response.text)
+
+            raise ApiError("Failed to edit message")
+        return response
+
     def send_message(
         self,
         channel,
@@ -170,5 +229,23 @@ class Client:
         }
         response = self._post(f"channels/{channel}/messages", json)
         if response.status_code != 200:
+            print(response.text)
+            print(response.headers)
             raise ApiError("Failed to send message")
-        return uuid
+        return Message(self, uuid, channel)
+
+
+class Message:
+    def __init__(self, client, uuid, channel) -> None:
+        self.client = client
+        self.uuid = uuid
+        self.channel = channel
+
+    def edit(self, text):
+        self.client.edit_message(self.channel, self.uuid, text)
+
+    def delete(self):
+        self.client.delete_message(self.channel, self.uuid)
+
+
+#
