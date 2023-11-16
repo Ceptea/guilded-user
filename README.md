@@ -2,6 +2,7 @@
 
 <br>
 Example usage:
+<br>
 ```python
 import guilded_user as guilded
 from time import sleep
