@@ -1,5 +1,6 @@
 # guilded-user
 A Api wrapper for guilded user api 
+<br>
 Example
 ```python
 import guilded_user as guilded
