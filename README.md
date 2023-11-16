@@ -1,7 +1,7 @@
 # guilded-user
-A Api wrapper for guilded user api 
+
 <br>
-Example
+Example usage:
 ```python
 import guilded_user as guilded
 from time import sleep
