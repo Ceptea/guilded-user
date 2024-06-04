@@ -1,5 +1,5 @@
 # guilded-user
-
+# Archived due to losing interest.
 ```python
 import guilded_user as guilded
 from time import sleep
